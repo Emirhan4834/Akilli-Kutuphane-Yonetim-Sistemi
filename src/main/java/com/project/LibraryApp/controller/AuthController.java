@@ -12,35 +12,34 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final KullaniciService kullaniciService;
     private final AuthService authService;
+    private final KullaniciService kullaniciService;
 
-    public AuthController(KullaniciService kullaniciService, AuthService authService) {
-        this.kullaniciService = kullaniciService;
+    public AuthController(AuthService authService, KullaniciService kullaniciService) {
         this.authService = authService;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<Kullanici> registerKullanici(@RequestBody Kullanici kullanici) {
-        Kullanici registeredKullanici = kullaniciService.registerUser(kullanici);
-        return new ResponseEntity<>(registeredKullanici, HttpStatus.CREATED);
+        this.kullaniciService = kullaniciService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> authenticateKullanici(@RequestBody Map<String, String> loginRequest) {
-
-        String kullaniciAdi = loginRequest.get("kullaniciAdi");
-        String sifre = loginRequest.get("sifre");
-
-        if (kullaniciAdi == null || sifre == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
         try {
-            Map<String, Object> response = authService.authenticateAndGenerateToken(kullaniciAdi, sifre);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            Map<String, Object> response = authService.authenticateAndGenerateToken(
+                    request.get("kullaniciAdi"),
+                    request.get("sifre")
+            );
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("hata", "Kullanıcı adı veya şifre yanlış."), HttpStatus.UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("hata", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Kullanici kullanici) {
+        try {
+            Kullanici yeniKullanici = kullaniciService.registerUser(kullanici);
+            return new ResponseEntity<>(yeniKullanici, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("hata", "Kayıt başarısız."), HttpStatus.BAD_REQUEST);
         }
     }
 }

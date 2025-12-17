@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 
 @Service
@@ -47,20 +46,6 @@ public class BildirimService {
                         "Ödünç aldığınız '" + kitap.getAd() + "' adlı kitabın iade tarihi " +
                         gecikmeGun + " gün önce (" + beklenenIadeTarihi + ") geçmiştir.\n" +
                         "Lütfen kitabı en kısa sürede iade ediniz.\n\n" +
-                        "LibraryApp"
-        );
-        mailSender.send(mail);
-    }
-
-
-    public void sendResetMail(String mailAdres, String yeniSifre) {
-        SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setFrom(from);
-        mail.setTo(mailAdres);
-        mail.setSubject("Şifre Yenileme");
-        mail.setText(
-                "Yeni şifreniz: " + yeniSifre + "\n" +
-                        "Giriş yaptıktan sonra değiştirmenizi öneririz.\n\n" +
                         "LibraryApp"
         );
         mailSender.send(mail);

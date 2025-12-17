@@ -1,7 +1,10 @@
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/LibraryAppApplication.java
+/home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/config/ApplicationConfig.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/config/SchedulingConfig.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/config/SecurityConfig.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/controller/AdminController.java
+/home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/controller/AuthController.java
+/home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/controller/HomeController.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/controller/KitapController.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/controller/OduncController.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/model/Ceza.java
@@ -19,6 +22,7 @@
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/repository/YazarRepository.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/security/JwtAuthenticationFilter.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/security/JwtTokenProvider.java
+/home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/service/AuthService.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/service/BildirimService.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/service/CezaService.java
 /home/emirhan/Belgeler/IdeaProjects/LibraryApp/src/main/java/com/project/LibraryApp/service/GecikmeUyariService.java
