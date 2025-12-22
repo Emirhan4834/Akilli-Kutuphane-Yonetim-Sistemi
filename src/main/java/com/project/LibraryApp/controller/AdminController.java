@@ -67,4 +67,14 @@ public class AdminController {
         kategoriService.deleteKategori(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
+    @PutMapping("/kitap/{id}/stok")
+    public ResponseEntity<Void> updateKitapStok(@PathVariable Long id, @RequestParam int yeniStok) {
+        kitapService.updateStok(id, yeniStok);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+
 }

@@ -51,14 +51,13 @@ public class KitapService {
         kitapRepository.deleteById(id);
     }
 
-    public void updateStok(Long kitapId, int miktarDegisimi) {
-        Kitap kitap = findKitapById(kitapId)
-                .orElseThrow(() -> new RuntimeException("Güncellenecek kitap bulunamadı."));
 
-        int yeniStok = kitap.getKopyaSayisi() + miktarDegisimi;
+    public void updateStok(Long id, int yeniStok) {
+        Kitap kitap = findKitapById(id)
+                .orElseThrow(() -> new RuntimeException("Kitap bulunamadı."));
 
         if (yeniStok < 0) {
-            throw new RuntimeException("Stok sıfırın altına düşemez.");
+            throw new RuntimeException("Stok adedi 0'dan küçük olamaz.");
         }
 
         kitap.setKopyaSayisi(yeniStok);

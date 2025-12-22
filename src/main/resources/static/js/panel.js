@@ -107,19 +107,41 @@ async function loadBooks() {
     }
 }
 
+
+
 function renderBooks(books) {
     const tableBody = document.getElementById('bookList');
     if (!tableBody) return;
 
     tableBody.innerHTML = '';
     books.forEach((book, index) => {
-        const stokDurum = book.kopyaSayisi > 0
-            ? `<span class="badge bg-success">${book.kopyaSayisi} Adet</span>`
-            : `<span class="badge bg-danger">Tükendi</span>`;
 
-        let adminAction = '';
+        let stokAlani = '';
+        let islemAlani = '';
+
         if (role === 'ADMIN') {
-            adminAction = `<button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteKitap(${book.id})"><i class="fas fa-trash"></i></button>`;
+            stokAlani = `
+                <div class="input-group input-group-sm" style="width: 140px;">
+                    <button class="btn btn-outline-secondary" type="button" onclick="changeStock(${book.id}, -1)">-</button>
+                    <input type="number" id="stock-${book.id}" class="form-control text-center" value="${book.kopyaSayisi}" 
+                           onchange="updateStockDirect(${book.id})" min="0">
+                    <button class="btn btn-outline-secondary" type="button" onclick="changeStock(${book.id}, 1)">+</button>
+                </div>
+            `;
+
+
+            islemAlani = `
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteKitap(${book.id})" title="Kitabı ve stoğu sil">
+                    <i class="fas fa-trash"></i> Sil
+                </button>
+            `;
+        }
+        else {
+            stokAlani = book.kopyaSayisi > 0
+                ? `<span class="badge bg-success">${book.kopyaSayisi} Adet</span>`
+                : `<span class="badge bg-danger">Tükendi</span>`;
+
+            islemAlani = `<button class="btn btn-sm btn-outline-primary" onclick="oduncAl('${book.id}')">Ödünç Al</button>`;
         }
 
         tableBody.innerHTML += `
@@ -129,14 +151,14 @@ function renderBooks(books) {
                 <td>${book.yazar ? book.yazar.ad + ' ' + book.yazar.soyad : '-'}</td>
                 <td><span class="badge bg-secondary">${book.kategori ? book.kategori.ad : '-'}</span></td>
                 <td>${book.yayinYili}</td>
-                <td>${stokDurum}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-primary" onclick="oduncAl('${book.id}')">Ödünç Al</button>
-                </td>
+                <td>${stokAlani}</td>
+                <td>${islemAlani}</td>
             </tr>
         `;
     });
 }
+
+
 
 function filterBooks(query) {
     if (!window.allBooks) return;
@@ -150,6 +172,8 @@ function filterBooks(query) {
     renderBooks(filtered);
 }
 
+
+
 async function oduncAl(kitapId) {
     document.getElementById('modalKitapId').value = kitapId;
 
@@ -161,6 +185,7 @@ async function oduncAl(kitapId) {
     const dateModal = new bootstrap.Modal(document.getElementById('dateModal'));
     dateModal.show();
 }
+
 
 
 async function submitOduncAl() {
@@ -219,6 +244,7 @@ async function submitOduncAl() {
 }
 
 
+
 async function loadAuthors() {
     const tableBody = document.getElementById('authorList');
     if (!tableBody) return;
@@ -241,6 +267,8 @@ async function loadAuthors() {
         tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">Bağlantı hatası.</td></tr>';
     }
 }
+
+
 
 function renderAuthors(authors) {
     const tableBody = document.getElementById('authorList');
@@ -306,6 +334,8 @@ async function loadCategories() {
     }
 }
 
+
+
 function renderCategories(categories) {
     const tableBody = document.getElementById('categoryList');
     if (!tableBody) return;
@@ -334,6 +364,8 @@ function renderCategories(categories) {
         `;
     });
 }
+
+
 
 function filterCategories(query) {
     if (!window.allCategories) return;
@@ -638,7 +670,7 @@ function logout() {
 
 
 async function deleteKitap(id) {
-    if (!confirm("Bu kitabı silmek istediğinize emin misiniz?")) return;
+    if (!confirm("DİKKAT: Bu kitabı ve tüm stoklarını silmek üzeresiniz! Onaylıyor musunuz?")) return;
 
     try {
         const res = await fetch(`/api/admin/kitap/${id}`, {
@@ -646,16 +678,18 @@ async function deleteKitap(id) {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         if (res.ok) {
-            alert("Kitap silindi.");
+            alert("Kitap başarıyla silindi.");
             loadBooks();
         } else {
-            alert("Silme işlemi başarısız. (Kitap kullanımda olabilir)");
+            alert("Silme işlemi başarısız. (Kitap şu an birinde ödünçte olabilir)");
         }
     } catch (e) {
         console.error(e);
         alert("Hata oluştu.");
     }
 }
+
+
 
 async function deleteYazar(id) {
     if (!confirm("Bu yazarı silmek istediğinize emin misiniz? Yazarın kitapları da etkilenebilir.")) return;
@@ -677,6 +711,8 @@ async function deleteYazar(id) {
     }
 }
 
+
+
 async function deleteKategori(id) {
     if (!confirm("Bu kategoriyi silmek istediğinize emin misiniz?")) return;
 
@@ -696,5 +732,49 @@ async function deleteKategori(id) {
     catch (e) {
         console.error(e);
         alert("Hata oluştu.");
+    }
+}
+
+
+
+function changeStock(bookId, delta) {
+    const input = document.getElementById(`stock-${bookId}`);
+    if (!input) return;
+
+    let currentValue = parseInt(input.value) || 0;
+    let newValue = currentValue + delta;
+
+    if (newValue < 0) newValue = 0;
+
+    input.value = newValue;
+    updateStockDirect(bookId);
+}
+
+
+async function updateStockDirect(bookId) {
+    const input = document.getElementById(`stock-${bookId}`);
+    if (!input) return;
+
+    const newValue = parseInt(input.value);
+
+    try {
+        const res = await fetch(`/api/admin/kitap/${bookId}/stok?yeniStok=${newValue}`, {
+            method: 'PUT',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (res.ok) {
+
+            input.classList.add('bg-success', 'text-white');
+            setTimeout(() => input.classList.remove('bg-success', 'text-white'), 500);
+        }
+        else {
+            alert("Stok güncellenemedi!");
+            loadBooks();
+        }
+    }
+    catch (e) {
+        console.error(e);
+        alert("Bağlantı hatası.");
     }
 }
