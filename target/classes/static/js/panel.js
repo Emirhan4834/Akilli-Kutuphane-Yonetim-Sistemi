@@ -117,6 +117,11 @@ function renderBooks(books) {
             ? `<span class="badge bg-success">${book.kopyaSayisi} Adet</span>`
             : `<span class="badge bg-danger">Tükendi</span>`;
 
+        let adminAction = '';
+        if (role === 'ADMIN') {
+            adminAction = `<button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteKitap(${book.id})"><i class="fas fa-trash"></i></button>`;
+        }
+
         tableBody.innerHTML += `
             <tr>
                 <th scope="row">${index + 1}</th>
@@ -243,11 +248,25 @@ function renderAuthors(authors) {
 
     tableBody.innerHTML = '';
     authors.forEach((yazar, index) => {
+
+        let islemSutunu = '';
+        if (role === 'ADMIN') {
+            islemSutunu = `
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteYazar(${yazar.id})">
+                        <i class="fas fa-trash"></i> Sil
+                    </button>
+                </td>`;
+        } else {
+            islemSutunu = `<td></td>`;
+        }
+
         tableBody.innerHTML += `
             <tr>
                 <th>${index + 1}</th>
                 <td class="fw-bold">${yazar.ad} ${yazar.soyad}</td>
                 <td>${yazar.biyografi || '-'}</td>
+                ${islemSutunu}
             </tr>
         `;
     });
@@ -293,10 +312,24 @@ function renderCategories(categories) {
 
     tableBody.innerHTML = '';
     categories.forEach((kategori, index) => {
+
+        let islemSutunu = '';
+        if (role === 'ADMIN') {
+            islemSutunu = `
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteKategori(${kategori.id})">
+                        <i class="fas fa-trash"></i> Sil
+                    </button>
+                </td>`;
+        } else {
+            islemSutunu = `<td></td>`;
+        }
+
         tableBody.innerHTML += `
             <tr>
                 <th>${index + 1}</th>
                 <td class="fw-bold">${kategori.ad}</td>
+                ${islemSutunu}
             </tr>
         `;
     });
@@ -599,5 +632,69 @@ function logout() {
     if (confirm("Çıkış yapılıyor...")) {
         localStorage.clear();
         window.location.href = '/';
+    }
+}
+
+
+
+async function deleteKitap(id) {
+    if (!confirm("Bu kitabı silmek istediğinize emin misiniz?")) return;
+
+    try {
+        const res = await fetch(`/api/admin/kitap/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+            alert("Kitap silindi.");
+            loadBooks();
+        } else {
+            alert("Silme işlemi başarısız. (Kitap kullanımda olabilir)");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Hata oluştu.");
+    }
+}
+
+async function deleteYazar(id) {
+    if (!confirm("Bu yazarı silmek istediğinize emin misiniz? Yazarın kitapları da etkilenebilir.")) return;
+
+    try {
+        const res = await fetch(`/api/admin/yazar/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+            alert("Yazar silindi.");
+            loadAuthors();
+        } else {
+            alert("Silme işlemi başarısız. (Yazara ait kitaplar olabilir)");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Hata oluştu.");
+    }
+}
+
+async function deleteKategori(id) {
+    if (!confirm("Bu kategoriyi silmek istediğinize emin misiniz?")) return;
+
+    try {
+        const res = await fetch(`/api/admin/kategori/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+            alert("Kategori silindi.");
+            loadCategories();
+        }
+        else {
+            alert("Silme işlemi başarısız. (Bu kategoride kitaplar olabilir)");
+        }
+    }
+    catch (e) {
+        console.error(e);
+        alert("Hata oluştu.");
     }
 }

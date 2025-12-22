@@ -3,9 +3,12 @@ package com.project.LibraryApp.service;
 import com.project.LibraryApp.model.Kitap;
 import com.project.LibraryApp.model.Kullanici;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.function.ServerResponse;
+
 import java.time.LocalDate;
 
 @Service
@@ -49,5 +52,20 @@ public class BildirimService {
                         "LibraryApp"
         );
         mailSender.send(mail);
+    }
+
+
+
+    public void sendHosgeldinMesaji(String kime, String kullaniciAdi) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("kutuphanebilgilendirme@gmail.com");
+        message.setTo(kime);
+        message.setSubject("Kütüphane Sistemine Hoş Geldiniz!");
+        message.setText("Merhaba " + kullaniciAdi + ",\n\n" +
+                "Akıllı Kütüphane Yönetim Sistemi'ne kaydınız başarıyla oluşturuldu.\n" +
+                "Giriş yaparak kütüphanemizdeki eşsiz kitapları keşfetmeye başlayabilirsiniz.\n\n" +
+                "İyi Okumalar dileriz.");
+
+         mailSender.send(message);
     }
 }

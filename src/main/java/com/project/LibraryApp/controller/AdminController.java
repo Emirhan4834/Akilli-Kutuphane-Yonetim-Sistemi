@@ -25,7 +25,7 @@ public class AdminController {
         this.kategoriService = kategoriService;
     }
 
-    // Yazar İşlemleri
+
     @PostMapping("/yazar")
     public ResponseEntity<Yazar> createYazar(@RequestBody Yazar yazar) {
         return new ResponseEntity<>(yazarService.saveYazar(yazar), HttpStatus.CREATED);
@@ -33,7 +33,7 @@ public class AdminController {
     @GetMapping("/yazarlar")
     public List<Yazar> getAllYazarlar() { return yazarService.findAllYazarlar(); }
 
-    // Kategori İşlemleri
+
     @PostMapping("/kategori")
     public ResponseEntity<Kategori> createKategori(@RequestBody Kategori kategori) {
         return new ResponseEntity<>(kategoriService.saveKategori(kategori), HttpStatus.CREATED);
@@ -41,9 +41,30 @@ public class AdminController {
     @GetMapping("/kategoriler")
     public List<Kategori> getAllKategoriler() { return kategoriService.findAllKategoriler(); }
 
-    // Kitap Ekleme
+
     @PostMapping("/kitap")
     public ResponseEntity<Kitap> createKitap(@RequestBody Kitap kitap) {
         return new ResponseEntity<>(kitapService.saveKitap(kitap), HttpStatus.CREATED);
+    }
+
+
+    @DeleteMapping("/kitap/{id}")
+    public ResponseEntity<Void> deleteKitap(@PathVariable Long id) {
+        kitapService.deleteKitap(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/yazar/{id}")
+    public ResponseEntity<Void> deleteYazar(@PathVariable Long id) {
+        yazarService.deleteYazar(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/kategori/{id}")
+    public ResponseEntity<Void> deleteKategori(@PathVariable Long id) {
+        kategoriService.deleteKategori(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

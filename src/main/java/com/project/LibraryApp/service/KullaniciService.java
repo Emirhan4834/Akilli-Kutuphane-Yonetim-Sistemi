@@ -14,10 +14,12 @@ public class KullaniciService {
 
     private final KullaniciRepository kullaniciRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BildirimService bildirimService;
 
-    public KullaniciService(KullaniciRepository kullaniciRepository, PasswordEncoder passwordEncoder) {
+    public KullaniciService(KullaniciRepository kullaniciRepository, PasswordEncoder passwordEncoder, BildirimService bildirimService) {
         this.kullaniciRepository = kullaniciRepository;
         this.passwordEncoder = passwordEncoder;
+        this.bildirimService = bildirimService;
     }
 
     public Kullanici registerUser(Kullanici kullanici) {
@@ -27,7 +29,20 @@ public class KullaniciService {
 
         kullanici.setRol(Rol.KULLANICI);
 
-        return kullaniciRepository.save(kullanici);
+
+        Kullanici savedUser = kullaniciRepository.save(kullanici);
+
+
+        try {
+            if (savedUser.getMail() != null && !savedUser.getMail().isEmpty()) {
+                bildirimService.sendHosgeldinMesaji(savedUser.getMail(), savedUser.getKullaniciAdi());
+            }
+        }
+        catch (Exception e) {
+            System.err.println("Hoş geldin maili gönderilemedi: " + e.getMessage());
+        }
+
+        return savedUser;
     }
 
     public List<Kullanici> findAllKullanicilar() {
