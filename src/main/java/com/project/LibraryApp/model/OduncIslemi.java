@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -38,16 +38,16 @@ public class OduncIslemi {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(nullable = false)
-    private LocalDate oduncTarihi;
+    private LocalDateTime oduncTarihi;
 
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(nullable = false)
-    private LocalDate beklenenIadeTarihi;
+    private LocalDateTime beklenenIadeTarihi;
 
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate gercekIadeTarihi;
+    private LocalDateTime gercekIadeTarihi;
 
 
     @Column(nullable = false)

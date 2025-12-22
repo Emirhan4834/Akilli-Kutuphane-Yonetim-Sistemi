@@ -5,8 +5,7 @@ import com.project.LibraryApp.repository.OduncIslemiRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -25,23 +24,27 @@ public class GecikmeUyariService {
     @Scheduled(fixedRate = 30000)
     @Transactional
     public void gecikenleriUyar() {
-        LocalDate today = LocalDate.now();
+
+        LocalDateTime now = LocalDateTime.now();
 
         List<OduncIslemi> gecikenler =
-                oduncRepo.findAllByGercekIadeTarihiIsNullAndBeklenenIadeTarihiBeforeAndGecikmeMailGonderildiMiFalse(today);
+                oduncRepo.findAllByGercekIadeTarihiIsNullAndBeklenenIadeTarihiBeforeAndGecikmeMailGonderildiMiFalse(now);
 
         for (OduncIslemi islem : gecikenler) {
-            long gecikmeGun = ChronoUnit.DAYS.between(islem.getBeklenenIadeTarihi(), today);
+            long gecikmeGun = ChronoUnit.DAYS.between(islem.getBeklenenIadeTarihi(), now);
+            if (gecikmeGun <= 0) gecikmeGun = 1;
 
             bildirimService.sendLateReturnMail(
                     islem.getKullanici(),
                     islem.getKitap(),
-                    islem.getBeklenenIadeTarihi(),
+                    islem.getBeklenenIadeTarihi().toLocalDate(),
                     gecikmeGun
             );
 
             islem.setGecikmeMailGonderildiMi(true);
             oduncRepo.save(islem);
+
+            System.out.println("Gecikme maili gönderildi: " + islem.getKullanici().getAd());
         }
     }
 }

@@ -10,10 +10,10 @@ import com.project.LibraryApp.repository.KullaniciRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.math.BigDecimal;
 import java.util.List;
-
 
 @Service
 public class OduncService {
@@ -35,9 +35,9 @@ public class OduncService {
     }
 
     @Transactional
-    public OduncIslemi kitapOduncAl(Long kullaniciId, Long kitapId, LocalDate beklenenIadeTarihi) {
+    public OduncIslemi kitapOduncAl(Long kullaniciId, Long kitapId, LocalDate beklenenIadeTarihiInput) {
 
-        if (beklenenIadeTarihi.isBefore(LocalDate.now())) {
+        if (beklenenIadeTarihiInput.isBefore(LocalDate.now())) {
             throw new RuntimeException("İade tarihi bugünden önce olamaz.");
         }
 
@@ -54,16 +54,19 @@ public class OduncService {
         OduncIslemi yeniIslem = new OduncIslemi();
         yeniIslem.setKullanici(kullanici);
         yeniIslem.setKitap(kitap);
-        yeniIslem.setOduncTarihi(LocalDate.now());
-        yeniIslem.setBeklenenIadeTarihi(beklenenIadeTarihi);
+
+        yeniIslem.setOduncTarihi(LocalDateTime.now());
+
+        yeniIslem.setBeklenenIadeTarihi(beklenenIadeTarihiInput.atStartOfDay());
 
         kitap.setKopyaSayisi(kitap.getKopyaSayisi() - 1);
         kitapRepository.save(kitap);
 
         OduncIslemi saved = oduncIslemiRepository.save(yeniIslem);
-        bildirimService.sendLoanMail(kullanici, kitap, beklenenIadeTarihi);
-        return saved;
 
+        bildirimService.sendLoanMail(kullanici, kitap, beklenenIadeTarihiInput);
+
+        return saved;
     }
 
     @Transactional
@@ -75,7 +78,7 @@ public class OduncService {
             throw new RuntimeException("Bu kitap zaten iade edilmiş.");
         }
 
-        islem.setGercekIadeTarihi(LocalDate.now());
+        islem.setGercekIadeTarihi(LocalDateTime.now());
 
         Kitap kitap = islem.getKitap();
         kitap.setKopyaSayisi(kitap.getKopyaSayisi() + 1);
@@ -90,16 +93,19 @@ public class OduncService {
         return oduncIslemiRepository.findAllByKullaniciId(kullaniciId);
     }
 
-
-
     private void hesaplaVeOlusturCeza(OduncIslemi islem) {
-
-        LocalDate beklenen = islem.getBeklenenIadeTarihi();
-        LocalDate gercek = islem.getGercekIadeTarihi();
+        LocalDateTime beklenen = islem.getBeklenenIadeTarihi();
+        LocalDateTime gercek = islem.getGercekIadeTarihi();
 
         if (gercek.isAfter(beklenen)) {
 
+            // Gün farkını hesapla
             long gecikmeGun = ChronoUnit.DAYS.between(beklenen, gercek);
+
+            if (gecikmeGun == 0) {
+                gecikmeGun = 1;
+            }
+
             BigDecimal gunlukCeza =
                     (gecikmeGun <= 3) ? new BigDecimal("5.00")
                             : (gecikmeGun <= 7) ? new BigDecimal("10.00")
@@ -114,7 +120,7 @@ public class OduncService {
 
             cezaService.saveCeza(ceza);
 
-            bildirimService.sendLateReturnMail(islem.getKullanici(), islem.getKitap(), beklenen, gecikmeGun);
+            bildirimService.sendLateReturnMail(islem.getKullanici(), islem.getKitap(), beklenen.toLocalDate(), gecikmeGun);
         }
     }
 }
