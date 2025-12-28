@@ -25,13 +25,13 @@ public class KullaniciService {
     public Kullanici registerUser(Kullanici kullanici) {
 
         String hashedPassword = passwordEncoder.encode(kullanici.getSifreHash());
+
         kullanici.setSifreHash(hashedPassword);
 
         kullanici.setRol(Rol.KULLANICI);
 
 
         Kullanici savedUser = kullaniciRepository.save(kullanici);
-
 
         try {
             if (savedUser.getMail() != null && !savedUser.getMail().isEmpty()) {
@@ -41,7 +41,6 @@ public class KullaniciService {
         catch (Exception e) {
             System.err.println("Hoş geldin maili gönderilemedi: " + e.getMessage());
         }
-
         return savedUser;
     }
 

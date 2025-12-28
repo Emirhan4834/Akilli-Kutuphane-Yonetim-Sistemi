@@ -52,7 +52,9 @@ public class OduncService {
         }
 
         OduncIslemi yeniIslem = new OduncIslemi();
+
         yeniIslem.setKullanici(kullanici);
+
         yeniIslem.setKitap(kitap);
 
         yeniIslem.setOduncTarihi(LocalDateTime.now());
@@ -60,6 +62,7 @@ public class OduncService {
         yeniIslem.setBeklenenIadeTarihi(beklenenIadeTarihiInput.atStartOfDay());
 
         kitap.setKopyaSayisi(kitap.getKopyaSayisi() - 1);
+
         kitapRepository.save(kitap);
 
         OduncIslemi saved = oduncIslemiRepository.save(yeniIslem);
@@ -81,7 +84,9 @@ public class OduncService {
         islem.setGercekIadeTarihi(LocalDateTime.now());
 
         Kitap kitap = islem.getKitap();
+
         kitap.setKopyaSayisi(kitap.getKopyaSayisi() + 1);
+
         kitapRepository.save(kitap);
 
         hesaplaVeOlusturCeza(islem);
@@ -106,9 +111,9 @@ public class OduncService {
             }
 
             BigDecimal gunlukCeza =
-                    (gecikmeGun <= 3) ? new BigDecimal("5.00")
-                            : (gecikmeGun <= 7) ? new BigDecimal("10.00")
-                            : new BigDecimal("20.00");
+                    (gecikmeGun <= 3) ? new BigDecimal("50.00")
+                            : (gecikmeGun <= 7) ? new BigDecimal("100.00")
+                            : new BigDecimal("200.00");
             BigDecimal toplamCezaMiktari = gunlukCeza.multiply(new BigDecimal(gecikmeGun));
 
             Ceza ceza = new Ceza();

@@ -102,7 +102,7 @@ public class AuthService {
         }
 
         long minutes = Duration.between(kullanici.getResetTokenCreationDate(), LocalDateTime.now()).toMinutes();
-        if (minutes > 15) {
+        if (minutes > 5) {
             return "Kodun süresi dolmuş. Lütfen tekrar deneyin.";
         }
 
@@ -112,8 +112,8 @@ public class AuthService {
 
         kullanici.setSifreHash(passwordEncoder.encode(newPassword));
 
-
         kullanici.setResetToken(null);
+
         kullanici.setResetTokenCreationDate(null);
 
         kullaniciRepository.save(kullanici);

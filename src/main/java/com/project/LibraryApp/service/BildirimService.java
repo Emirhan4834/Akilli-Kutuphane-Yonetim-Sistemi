@@ -77,7 +77,7 @@ public class BildirimService {
         message.setFrom("seninmailin@gmail.com");
         message.setTo(toEmail);
         message.setSubject("Şifre Yenileme Kodu");
-        message.setText("Merhaba,\n\nŞifrenizi yenilemek için kullanmanız gereken doğrulama kodu: " + code + "\n\nBu kod 15 dakika geçerlidir.");
+        message.setText("Merhaba,\n\nŞifrenizi yenilemek için kullanmanız gereken doğrulama kodu: " + code + "\n\nBu kod 5 dakika geçerlidir.");
 
         mailSender.send(message);
     }

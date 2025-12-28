@@ -15,10 +15,13 @@ CREATE TRIGGER trg_hizli_ceza
     EXECUTE FUNCTION set_hizli_ceza_tarihi();;
 
 
+
+
+
 CREATE TABLE IF NOT EXISTS kitap_stok_log (
-                                              id BIGSERIAL PRIMARY KEY,
-                                              kitap_id BIGINT,
-                                              kitap_adi VARCHAR(255),
+    id BIGSERIAL PRIMARY KEY,
+    kitap_id BIGINT,
+    kitap_adi VARCHAR(255),
     eski_stok INT,
     yeni_stok INT,
     islem_tarihi TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -41,6 +44,10 @@ CREATE TRIGGER trg_stok_degisim
     AFTER UPDATE ON kitap
     FOR EACH ROW
     EXECUTE FUNCTION stok_takip_func();;
+
+
+
+
 
 
 CREATE OR REPLACE PROCEDURE gecikme_kontrol_raporu()
